@@ -1,11 +1,11 @@
 package com.modul2.learning.service;
 
+import com.modul2.learning.dto.UserDTO;
 import com.modul2.learning.entities.User;
 import com.modul2.learning.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -40,8 +40,8 @@ public class UserService {
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        updatedUser.setFirst_name(userBody.getFirst_name());
-        updatedUser.setLast_name(userBody.getLast_name());
+        updatedUser.setFirstName(userBody.getFirstName());
+        updatedUser.setLastName(userBody.getLastName());
         updatedUser.setUserName(userBody.getUserName());
         updatedUser.setAge(userBody.getAge());
 

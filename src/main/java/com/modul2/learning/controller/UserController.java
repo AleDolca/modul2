@@ -1,5 +1,7 @@
 package com.modul2.learning.controller;
 
+import com.modul2.learning.dto.UserDTO;
+import com.modul2.learning.dto.mapper.UserMapper;
 import com.modul2.learning.entities.User;
 import com.modul2.learning.service.UserService;
 import org.apache.coyote.Response;
@@ -20,16 +22,20 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     //cand cream date, folosim POST (daca avem un singur tip de POST, nu avem nevoie de ce e in paranteza "/create")
     //POST reprezinta automat crearea unei noi entitati
     @PostMapping()
-    public ResponseEntity<?> create(@RequestBody User user) {
+    public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
         //comment daca am avea parametrul ca UserDTO
         //pas1: il convertesc intr-o entitate User (printr-o clasa Mapper)
         //pas2: linia de mai  jos
-        User createdUser = userService.create(user);
+        User userEntity = userMapper.toEntity(userDTO);
+        User createdUser = userService.create(userEntity);
         //pas3: convertesc entitatea din nou intr-un DTO
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity.ok(userMapper.toDTO(createdUser));
     }
 
     //returnam un user dupa id
@@ -37,14 +43,14 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getById(@PathVariable(name="userId") Long userIdToSearchFor) {
         User foundUser = userService.getById(userIdToSearchFor);
-        return ResponseEntity.ok(foundUser);
+        return ResponseEntity.ok(userMapper.toDTO(foundUser));
 
     }
 
     @GetMapping()
     public ResponseEntity<?> findAll() {
         List<User> users = userService.findAll();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(users.stream().map(userMapper::toDTO).toList());
     }
 
     @DeleteMapping("/{userId}")
@@ -54,9 +60,11 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateById(@PathVariable(name="userId") Long userIdToUpdate, @RequestBody User userBody){
-        User updatedUser = userService.updateById(userIdToUpdate, userBody);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<?> updateById(@PathVariable(name="userId") Long userIdToUpdate, @RequestBody UserDTO userBody){
+        User userEntity = userMapper.toEntity(userBody);
+        User updatedUser = userService.updateById(userIdToUpdate, userEntity);
+        return ResponseEntity.ok(userMapper.toDTO(updatedUser));
     }
+
 }
 
