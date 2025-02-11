@@ -1,36 +1,40 @@
 package com.modul2.learning.dto.mapper;
 
 import com.modul2.learning.dto.UserDTO;
+import com.modul2.learning.entities.Application;
 import com.modul2.learning.entities.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-@Component
+import java.util.List;
+
+
 public class UserMapper {
-    @Bean
-    public UserMapper modelMapper() {
-        return new UserMapper();
-    }
-
-    public UserDTO toDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setUserName(user.getUserName());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setAge(user.getAge());
-        return dto;
-    }
-
-
-    public User toEntity(UserDTO dto) {
+    public static User userDTO2User(UserDTO userDTO) {
         User user = new User();
-        user.setId(dto.getId());
-        user.setUserName(dto.getUserName());
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setAge(dto.getAge());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setAge(userDTO.getAge());
+        user.setUserName(userDTO.getUserName());
+        List<Application> applications = userDTO.getApplications().stream()
+//                .map(applicationDto -> ApplicationMapper.applicationDTO2Application(applicationDto))
+                .map(ApplicationMapper::applicationDTO2Application)
+                .toList();
+        user.setApplications(applications);
         return user;
     }
 
+    public static UserDTO user2UserDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
+        userDTO.setAge(user.getAge());
+        userDTO.setUserName(user.getUserName());
+        userDTO.setApplications(user.getApplications().stream()
+                .map(ApplicationMapper::application2ApplicationDTO)
+                .toList());
+        //ideal: trebuia sa fie si books aici
+        return userDTO;
+    }
 }
