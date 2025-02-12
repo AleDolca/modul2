@@ -15,15 +15,21 @@ public class BookService {
     @Autowired
     private UserRepository userRepository;
 
-    public Book create(Book bookToCreate, Long userId) {
+    public Book create(Book book) {
+        if(book.getId() != null){
+            throw new RuntimeException("You cannot provide an ID to a new application that you want to create");
+        }
+        return bookRepository.save(book);
+    }
+
+    public Book createWithUserId(Long userId, Book book) {
         User user = userRepository.findById(userId)
                 .orElseThrow(EntityExistsException::new);
         //varianta comentata ar fi fost fara metoda addBook() in User, unde am setat
         //relatia bidirectional
         //user.getBooks().add(bookToCreate);
         //bookToCreate.setUser(user);
-        user.addBook(bookToCreate);
-        bookRepository.save(bookToCreate);
-        return bookToCreate;
+        book.setUser(user);
+        return bookRepository.save(book);
     }
 }

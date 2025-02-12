@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 //operatii de tipul CRUD - create, read, update, delete
 //poate primi request de http
 @RestController
@@ -22,18 +23,29 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //cand cream date, folosim POST (daca avem un singur tip de POST, nu avem nevoie de ce e in paranteza "/create")
-    //POST reprezinta automat crearea unei noi entitati
+
+    //1 - create parent with/without children
     @PostMapping()
     public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
-        //comment daca am avea parametrul ca UserDTO
-        //pas1: il convertesc intr-o entitate User (printr-o clasa Mapper)
-        //pas2: linia de mai  jos
         User userToCreate = UserMapper.userDTO2User(userDTO);
         User createdUser = userService.create(userToCreate);
-        //pas3: convertesc entitatea din nou intr-un DTO
         return ResponseEntity.ok(UserMapper.user2UserDTO(createdUser));
     }
+
+    //3 - add existing child to parent
+    @PutMapping("/{userId}/add-book/{bookId}")
+    public ResponseEntity<?> addBookToUser(@PathVariable Long userId, @PathVariable Long bookId) {
+        User updatedUser = userService.addBookToUser(userId, bookId);
+        return ResponseEntity.ok(UserMapper.user2UserDTO(updatedUser));
+    }
+
+    //6 - remove child from parent
+    @DeleteMapping("/{userId}/remove-book/{bookId}")
+    public ResponseEntity<?> removeBookFromUser(@PathVariable Long userId, @PathVariable Long bookId) {
+        userService.removeBookFromUser(userId, bookId);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @PostMapping("/with-apps")
     public ResponseEntity<?> createWithApplications(@RequestBody UserDTO userDTO) {
@@ -42,13 +54,18 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.user2UserDTO(createdUser));
     }
 
+    @PutMapping("{userId}/add-app/{appId}")
+    public ResponseEntity<?> addAppToUser(@PathVariable long userId, @PathVariable Long appId){
+        User updatedUser = userService.addAppToUser(userId, appId);
+        return ResponseEntity.ok(UserMapper.user2UserDTO(updatedUser));
+    }
+
     //returnam un user dupa id
     //id ul il pun in path/cale in postman, pentru ca un Get nu are Request Body (doar response body)
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getById(@PathVariable(name="userId") Long userIdToSearchFor) {
+    public ResponseEntity<?> getById(@PathVariable(name = "userId") Long userIdToSearchFor) {
         User foundUser = userService.getById(userIdToSearchFor);
         return ResponseEntity.ok(UserMapper.user2UserDTO(foundUser));
-
     }
 
     @GetMapping()
@@ -58,17 +75,16 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteById(@PathVariable(name="userId") Long userIdToDelete) {
+    public ResponseEntity<?> deleteById(@PathVariable(name = "userId") Long userIdToDelete) {
         userService.deleteById(userIdToDelete);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateById(@PathVariable(name="userId") Long userIdToUpdate, @RequestBody UserDTO userBody){
+    public ResponseEntity<?> updateById(@PathVariable(name = "userId") Long userIdToUpdate, @RequestBody UserDTO userBody) {
         User userEntity = UserMapper.userDTO2User(userBody);
         User updatedUser = userService.updateById(userIdToUpdate, userEntity);
         return ResponseEntity.ok(UserMapper.user2UserDTO(updatedUser));
     }
-
 }
 

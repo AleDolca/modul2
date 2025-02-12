@@ -17,10 +17,19 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
+    //2 - create children
+    @PostMapping()
+    public ResponseEntity<?> create(@RequestBody BookDTO bookDto) {
+        Book bookToCreate = BookMapper.bookDto2Book(bookDto);
+        Book createdBook = bookService.create(bookToCreate);
+        return ResponseEntity.ok(BookMapper.book2BookDto(createdBook));
+    }
+
+    //4 - create child with parent id as param
     @PostMapping("/{userId}")
     public ResponseEntity<?> create(@PathVariable Long userId, @RequestBody BookDTO bookDto) {
         Book bookToCreate = BookMapper.bookDto2Book(bookDto);
-        Book createdBook = bookService.create(bookToCreate, userId);
+        Book createdBook = bookService.createWithUserId(userId, bookToCreate);
         return ResponseEntity.ok(BookMapper.book2BookDto(createdBook));
     }
 }

@@ -1,7 +1,11 @@
 package com.modul2.learning.service;
 
 import com.modul2.learning.dto.UserDTO;
+import com.modul2.learning.entities.Application;
+import com.modul2.learning.entities.Book;
 import com.modul2.learning.entities.User;
+import com.modul2.learning.repository.ApplicationRepository;
+import com.modul2.learning.repository.BookRepository;
 import com.modul2.learning.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,10 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private BookRepository bookRepository;
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     public User create(User user) {
         if(user.getId() != null) {
@@ -45,11 +53,41 @@ public class UserService {
         updatedUser.setUserName(userBody.getUserName());
         updatedUser.setAge(userBody.getAge());
 
-        userRepository.save(updatedUser);
-
-        return updatedUser;
-
+        return userRepository.save(updatedUser);
     }
 
+    public User addBookToUser(Long userId, Long bookId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        user.addBook(book);
+        return userRepository.save(user);
+    }
+
+    public void removeBookFromUser(Long userId, Long bookId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Book bookToRemove = user.getBooks().stream()
+                .filter(book -> book.getId().equals(bookId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Book not found for this user"));
+
+        user.getBooks().remove(bookToRemove);
+        userRepository.save(user);
+    }
+
+    public User addAppToUser(long userId, Long appId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Application application = applicationRepository.findById(appId)
+                .orElseThrow(() -> new RuntimeException("App not found"));
+
+        user.addApplication(application);
+        return userRepository.save(user);
+    }
 }

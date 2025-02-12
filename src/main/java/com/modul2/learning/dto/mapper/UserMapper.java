@@ -6,6 +6,7 @@ import com.modul2.learning.entities.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,11 +17,16 @@ public class UserMapper {
         user.setLastName(userDTO.getLastName());
         user.setAge(userDTO.getAge());
         user.setUserName(userDTO.getUserName());
-        List<Application> applications = userDTO.getApplications().stream()
-//                .map(applicationDto -> ApplicationMapper.applicationDTO2Application(applicationDto))
-                .map(ApplicationMapper::applicationDTO2Application)
-                .toList();
-        user.setApplications(applications);
+        user.setBooks(userDTO.getBooks() != null ?
+                userDTO.getBooks().stream()
+                        .map(BookMapper::bookDto2Book)
+                        .peek(book -> book.setUser(user))
+                        .toList()
+                : new ArrayList<>());
+        user.setApplications(userDTO.getApplications() != null ?
+                userDTO.getApplications().stream()
+                        .map(ApplicationMapper::applicationDTO2Application)
+                        .toList() : new ArrayList<>());
         return user;
     }
 
@@ -31,10 +37,12 @@ public class UserMapper {
         userDTO.setLastName(user.getLastName());
         userDTO.setAge(user.getAge());
         userDTO.setUserName(user.getUserName());
+        userDTO.setBooks(user.getBooks().stream()
+                .map(BookMapper::book2BookDto)
+                .toList());
         userDTO.setApplications(user.getApplications().stream()
                 .map(ApplicationMapper::application2ApplicationDTO)
                 .toList());
-        //ideal: trebuia sa fie si books aici
         return userDTO;
     }
 }
