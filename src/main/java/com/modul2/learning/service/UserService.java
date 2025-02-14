@@ -33,7 +33,8 @@ public class UserService {
 
     public User getById(Long userId){
          return userRepository.findById(userId)
-                .orElseThrow(EntityNotFoundException::new);
+                //.orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("User with id %s not found".formatted(userId)));
     }
 
     public List<User> findAll(){
@@ -77,6 +78,8 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Book not found for this user"));
 
         user.getBooks().remove(bookToRemove);
+        //sa setezi pe null userul in  bookToRemove
+        //sau implementezi un remove special in user in care sa le faci pe ambele
         userRepository.save(user);
     }
 
