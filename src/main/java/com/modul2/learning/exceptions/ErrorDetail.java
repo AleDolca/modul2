@@ -6,6 +6,7 @@ public class ErrorDetail {
     private LocalDateTime time;
     private String errorMessage;
 
+
     public ErrorDetail(String errorMessage) {
         this.time = LocalDateTime.now();
         this.errorMessage = errorMessage;
